@@ -4,5 +4,5 @@ kind: Kustomization
 metadata:
   name: ingress-nginx-aggregator
 resources:
-  - ../base/ingress-nginx/ingress-release.yaml
   - ../base/ingress-nginx/ingress-namespace.yaml
+  - ../base/ingress-nginx/ingress-release.yaml
