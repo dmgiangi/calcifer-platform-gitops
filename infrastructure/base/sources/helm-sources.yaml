@@ -15,4 +15,4 @@ metadata:
   namespace: flux-system
 spec:
   interval: 1h
-  url: https://metallb.github.io/metallb # Nuova repository per MetalLB
+  url: https://metallb.github.io/metallb
