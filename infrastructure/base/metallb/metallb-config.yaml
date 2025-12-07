@@ -1,0 +1,18 @@
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: calcifer-lb-pool
+  namespace: metallb-system
+spec:
+  addresses:
+  - 192.168.200.200-192.168.200.210
+---
+apiVersion: metallb.io/v1beta1
+kind: L2Advertisement
+metadata:
+  name: calcifer-l2-advertisement
+  namespace: metallb-system
+spec:
+  ipAddressPools:
+  - calcifer-lb-pool
