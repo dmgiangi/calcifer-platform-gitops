@@ -5,4 +5,5 @@ metadata:
   name: metallb-kustomization-aggregator
 resources:
   - ../base/metallb/metallb-release.yaml
+  - ../base/metallb/metallb-namespace.yaml
   - ../base/metallb/metallb-config.yaml
