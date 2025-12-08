@@ -2,7 +2,8 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
+  - ../base/namespaces/namespaces.yaml
   - ../base/sources/helm-sources.yaml
-  - ../base/metallb/metallb-namespace.yaml
+  - ./metallb-controller.yaml
   - ./metallb-kustomization.yaml
   - ./ingress-nginx-kustomization.yaml
