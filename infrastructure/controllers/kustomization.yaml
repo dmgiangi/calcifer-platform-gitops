@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - ../base/namespaces
   - ../base/sources
+  - ./local-path-provisioner.yaml
   - ./kong-gateway.yaml
   - ./cert-manager.yaml
   - ./tf-controller.yaml
