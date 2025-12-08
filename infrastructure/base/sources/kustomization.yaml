@@ -2,7 +2,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-  - ./metallb-repository.yaml
   - ./kong-repository.yaml
   - ./jetstack-repository.yaml
   - ./tf-controller-repository.yaml

@@ -4,8 +4,6 @@ kind: Kustomization
 resources:
   - ../base/namespaces
   - ../base/sources
-  - ./metallb-controller.yaml
-  - ./metallb-config.yaml
   - ./kong-gateway.yaml
   - ./cert-manager.yaml
   - ./tf-controller.yaml

@@ -1,4 +1,3 @@
----
 apiVersion: helm.toolkit.fluxcd.io/v2beta2
 kind: HelmRelease
 metadata:
@@ -20,9 +19,12 @@ spec:
     crds: CreateReplace
   values:
     proxy:
-      type: LoadBalancer
-      externalTrafficPolicy: Local
-      loadBalancerIP: "192.168.200.200"
+      type: NodePort
+      http:
+        nodePort: 30080
+      tls:
+        nodePort: 30443
+      externalTrafficPolicy: Cluster
     admin:
       type: ClusterIP
     ingressController:
