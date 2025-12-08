@@ -16,3 +16,9 @@ spec:
   values:
     replicaCount: 1
     installCRDs: true
+    awsPackage:
+      install: false
+    azurePackage:
+      install: false
+    gcpPackage:
+      install: false
