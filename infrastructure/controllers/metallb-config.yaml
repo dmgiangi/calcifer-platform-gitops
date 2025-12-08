@@ -6,7 +6,7 @@ metadata:
   namespace: flux-system
 spec:
   interval: 5m
-  path: ./infrastructure/base/metallb/metallb-release.yaml
+  path: ./infrastructure/base/metallb/config
   sourceRef:
     kind: GitRepository
     name: flux-system
