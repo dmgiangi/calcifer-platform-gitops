@@ -4,3 +4,5 @@ kind: Kustomization
 resources:
   - ./metallb-repository.yaml
   - ./kong-repository.yaml
+  - ./jetstack-repository.yaml
+  - ./tf-controller-repository.yaml
