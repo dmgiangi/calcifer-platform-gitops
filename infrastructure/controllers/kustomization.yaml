@@ -6,4 +6,4 @@ resources:
   - ../base/sources
   - ./metallb-controller.yaml
   - ./metallb-config.yaml
-  - ./ingress-nginx.yaml
+  - ./kong-gateway.yaml
