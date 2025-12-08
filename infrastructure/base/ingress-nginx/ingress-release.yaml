@@ -12,6 +12,7 @@ spec:
       sourceRef:
         kind: HelmRepository
         name: ingress-nginx
+        namespace: flux-system
       version: "4.x"
   install:
     crds: Create
