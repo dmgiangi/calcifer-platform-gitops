@@ -18,9 +18,9 @@ spec:
   upgrade:
     crds: CreateReplace
   values:
+    hostNetwork: true
     proxy:
       type: ClusterIP
-      hostNetwork: true
       http:
         containerPort: 80
       tls:
