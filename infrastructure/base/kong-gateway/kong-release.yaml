@@ -19,11 +19,12 @@ spec:
     crds: CreateReplace
   values:
     proxy:
-      type: NodePort
+      type: ClusterIP
+      hostNetwork: true
       http:
-        nodePort: 30080
+        containerPort: 80
       tls:
-        nodePort: 30443
+        containerPort: 443
       externalTrafficPolicy: Cluster
     admin:
       type: ClusterIP
