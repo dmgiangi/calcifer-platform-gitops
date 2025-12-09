@@ -18,7 +18,8 @@ spec:
   upgrade:
     crds: CreateReplace
   values:
-    hostNetwork: true
+    deployment:
+      hostNetwork: true
     proxy:
       type: ClusterIP
       http:
