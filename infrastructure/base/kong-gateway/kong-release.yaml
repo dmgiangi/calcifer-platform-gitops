@@ -20,6 +20,8 @@ spec:
   values:
     deployment:
       hostNetwork: true
+    env:
+      status_listen: 127.0.0.1:8100, [::1]:8100
     proxy:
       type: ClusterIP
       http:
