@@ -23,8 +23,10 @@ spec:
       type: ClusterIP
       http:
         containerPort: 80
+        enabled: true
       tls:
         containerPort: 443
+        enabled: true
       externalTrafficPolicy: Cluster
     admin:
       type: ClusterIP
