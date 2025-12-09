@@ -19,17 +19,17 @@ spec:
     crds: CreateReplace
   values:
     deployment:
-      daemonset: true
-      hostNetwork: true
+      daemonset: true # <--- BEST PRACTICE: Uses DaemonSet to ensure Kong runs on every node (on single-node VPS).
+      hostNetwork: true # <--- CRITICAL FIX 1: Enables the Pod to use the host's network stack (required for bare-metal exposure).
     containerSecurityContext:
       capabilities:
-        add: [NET_BIND_SERVICE]
+        add: [NET_BIND_SERVICE] # <--- CRITICAL FIX 2: Grants permission to bind to privileged ports (80/443).
         drop: []
       runAsGroup: 0
       runAsNonRoot: false
-      runAsUser: 0
+      runAsUser: 0 # <--- CRITICAL FIX 2: Runs the container as root to ensure necessary binding and volume permissions.
     proxy:
-      type: ClusterIP
+      type: ClusterIP # Service type remains ClusterIP, as the hostNetwork bypasses the need for NodePort/LoadBalancer for external exposure.
       http:
         containerPort: 80
         enabled: true
@@ -41,4 +41,3 @@ spec:
       type: ClusterIP
     ingressController:
       enabled: true
-    replicaCount: 1
