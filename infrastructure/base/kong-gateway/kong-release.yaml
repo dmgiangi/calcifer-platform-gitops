@@ -26,11 +26,10 @@ spec:
     containerSecurityContext:
       capabilities:
         add: [NET_BIND_SERVICE]
+        drop: []
       runAsGroup: 0
       runAsNonRoot: false
       runAsUser: 0
-    env:
-      status_listen: 127.0.0.1:8100, [::1]:8100
     proxy:
       type: ClusterIP
       http:
