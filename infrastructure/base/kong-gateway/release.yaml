@@ -4,6 +4,7 @@ metadata:
   name: kong
   namespace: kong
 spec:
+  interval: 5m
   chart:
     spec:
       chart: kong
