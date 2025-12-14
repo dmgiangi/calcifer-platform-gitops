@@ -15,7 +15,6 @@ spec:
   unsealConfig:
     azure:
       keyVaultName: "kv-calcifer-westeurope"
-      tenantId: "6ab554b0-ff6e-47a0-986c-3bad955c4694"
 
   volumeClaimTemplates:
     - metadata:
