@@ -33,6 +33,11 @@ spec:
 
   #Mount Storage
   vaultContainerSpec:
+    env:
+      - name: SKIP_SETCAP
+        value: "true"
+      - name: SKIP_CHOWN
+        value: "true"
     volumeMounts:
       - name: data
         mountPath: /vault/data
