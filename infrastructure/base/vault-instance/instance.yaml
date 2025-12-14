@@ -55,12 +55,13 @@ spec:
     disable_mlock: true
     api_addr: "http://vault.vault:8200"
     cluster_addr: "http://$(HOSTNAME).vault-internal:8201"
-#
-#  vaultPodSpec:
-#    securityContext:
-#      runAsUser: 100
-#      runAsGroup: 1000
-#      fsGroup: 1000
+
+  vaultPodSpec:
+    securityContext:
+      allowPrivilegeEscalation: false
+      runAsUser: 100
+      runAsGroup: 1000
+      fsGroup: 1000
 
   externalConfig:
     policies:
