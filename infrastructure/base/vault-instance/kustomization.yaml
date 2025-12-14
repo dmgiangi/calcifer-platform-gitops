@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - serviceaccount.yaml
   - instance.yaml
+  - ingress.yaml
