@@ -1,0 +1,41 @@
+apiVersion: vault.banzaicloud.com/v1alpha1
+kind: Vault
+metadata:
+  name: vault
+  namespace: vault
+spec:
+  size: 2
+  image: hashicorp/vault:1.15.2
+
+  serviceAccount:
+    annotations:
+      azure.workload.identity/client-id: "4a3a3539-38e4-4955-8b8b-e8a0782887cb"
+      azure.workload.identity/tenant-id: "6ab554b0-ff6e-47a0-986c-3bad955c4694"
+
+  podLabels:
+    azure.workload.identity/use: "true"
+
+  unsealConfig:
+    azure:
+      keyVaultName: "kv-calcifer-westeurope"
+      tenantId: "6ab554b0-ff6e-47a0-986c-3bad955c4694"
+      secretName: "vault-root-keys"
+
+  storage:
+    type: raft
+    raft:
+      storageClassName: "local-path"
+      size: 5Gi
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: kong
+    hosts:
+      - host: vault.dmgiangi.dev
+        paths: [/]
+
+  externalConfig:
+    policies:
+      - name: allow_secrets
+        rules: path "secret/*" { capabilities = ["create", "read", "update", "delete", "list"] }
