@@ -36,7 +36,6 @@ spec:
       tls:
         containerPort: 443
         enabled: true
-      externalTrafficPolicy: Cluster
     admin:
       type: ClusterIP
     ingressController:
