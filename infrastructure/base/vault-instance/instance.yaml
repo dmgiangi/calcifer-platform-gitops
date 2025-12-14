@@ -58,7 +58,6 @@ spec:
 
   vaultPodSpec:
     securityContext:
-      allowPrivilegeEscalation: false
       runAsUser: 100
       runAsGroup: 1000
       fsGroup: 1000
