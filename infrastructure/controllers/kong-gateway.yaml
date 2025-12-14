@@ -5,7 +5,6 @@ metadata:
   name: kong-gateway
   namespace: flux-system
 spec:
-  interval: 5m
   path: ./infrastructure/base/kong-gateway
   sourceRef:
     kind: GitRepository
