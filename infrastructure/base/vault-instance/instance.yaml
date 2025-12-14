@@ -9,14 +9,13 @@ spec:
 
   serviceAccount: vault
 
-  podLabels:
+  vaultLabels:
     azure.workload.identity/use: "true"
 
   unsealConfig:
     azure:
       keyVaultName: "kv-calcifer-westeurope"
       tenantId: "6ab554b0-ff6e-47a0-986c-3bad955c4694"
-      secretName: "vault-root-keys"
 
   volumeClaimTemplates:
     - metadata:
@@ -40,14 +39,6 @@ spec:
     ui: true
     api_addr: "http://vault.vault:8200"
     cluster_addr: "http://$(HOSTNAME).vault-internal:8201"
-
-  ingress:
-    enabled: true
-    annotations:
-      kubernetes.io/ingress.class: kong
-    hosts:
-      - host: vault.dmgiangi.dev
-        paths: [/]
 
   externalConfig:
     policies:
