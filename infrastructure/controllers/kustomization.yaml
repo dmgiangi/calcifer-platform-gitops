@@ -7,4 +7,5 @@ resources:
   - ./local-path-provisioner.yaml
   - ./kong-gateway.yaml
   - ./cert-manager.yaml
+  - ./cert-manager-issuers.yaml
   - ./tf-controller.yaml
