@@ -9,3 +9,4 @@ resources:
   - ./cert-manager.yaml
   - ./cert-manager-issuers.yaml
   - ./tf-controller.yaml
+  - ./vault.yaml
