@@ -7,10 +7,7 @@ spec:
   size: 2
   image: hashicorp/vault:1.15.2
 
-  serviceAccount:
-    annotations:
-      azure.workload.identity/client-id: "4a3a3539-38e4-4955-8b8b-e8a0782887cb"
-      azure.workload.identity/tenant-id: "6ab554b0-ff6e-47a0-986c-3bad955c4694"
+  serviceAccount: vault
 
   podLabels:
     azure.workload.identity/use: "true"
