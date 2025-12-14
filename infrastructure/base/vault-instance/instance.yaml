@@ -7,15 +7,19 @@ spec:
   size: 2
   image: hashicorp/vault:1.15.2
 
+  # Service Account
   serviceAccount: vault
 
+  # Azure Webhook Label
   vaultLabels:
     azure.workload.identity/use: "true"
 
+  # Azure Unseal
   unsealConfig:
     azure:
       keyVaultName: "kv-calcifer-westeurope"
 
+  # Physical Storage
   volumeClaimTemplates:
     - metadata:
         name: data
@@ -27,6 +31,13 @@ spec:
           requests:
             storage: 5Gi
 
+  #Mount Storage
+  vaultContainerSpec:
+    volumeMounts:
+      - name: data
+        mountPath: /vault/data
+
+  # internal config
   config:
     storage:
       raft:
@@ -38,6 +49,12 @@ spec:
     ui: true
     api_addr: "http://vault.vault:8200"
     cluster_addr: "http://$(HOSTNAME).vault-internal:8201"
+
+  vaultPodSpec:
+    securityContext:
+      runAsUser: 100
+      runAsGroup: 1000
+      fsGroup: 1000
 
   externalConfig:
     policies:
