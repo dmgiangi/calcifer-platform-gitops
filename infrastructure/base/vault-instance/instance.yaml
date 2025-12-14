@@ -18,11 +18,28 @@ spec:
       tenantId: "6ab554b0-ff6e-47a0-986c-3bad955c4694"
       secretName: "vault-root-keys"
 
-  storage:
-    type: raft
-    raft:
-      storageClassName: "local-path"
-      size: 5Gi
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        storageClassName: "local-path"
+        resources:
+          requests:
+            storage: 5Gi
+
+  config:
+    storage:
+      raft:
+        path: "/vault/data"
+    listener:
+      tcp:
+        address: "0.0.0.0:8200"
+        tls_disable: true
+    ui: true
+    api_addr: "http://vault.vault:8200"
+    cluster_addr: "http://$(HOSTNAME).vault-internal:8201"
 
   ingress:
     enabled: true
