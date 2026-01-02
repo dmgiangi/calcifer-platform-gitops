@@ -5,6 +5,9 @@ metadata:
   namespace: vault
   annotations:
     kubernetes.io/ingress.class: kong
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    konghq.com/protocol: "http"
+    konghq.com/preserve-host: "true"
 spec:
   ingressClassName: kong
   rules:
