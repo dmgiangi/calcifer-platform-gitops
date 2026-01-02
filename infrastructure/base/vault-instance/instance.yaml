@@ -55,12 +55,11 @@ spec:
         path: "/vault/data"
     listener:
       tcp:
-        address: "0.0.0.0:8202"
-        cluster_address: "0.0.0.0:8201"
+        address: "127.0.0.1:8200"
         tls_disable: true
     ui: true
     disable_mlock: true
-    api_addr: "http://vault.vault:8202"
+    api_addr: "http://vault.vault:8200"
     cluster_addr: "http://$(HOSTNAME).vault-internal:8201"
 
   vaultPodSpec:
