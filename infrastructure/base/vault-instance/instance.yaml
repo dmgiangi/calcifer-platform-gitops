@@ -59,7 +59,6 @@ spec:
     ui: true
     disable_mlock: true
     api_addr: "http://vault.vault:8200"
-    cluster_addr: "http://$(HOSTNAME).vault-internal:8201"
 
   vaultPodSpec:
     securityContext:
