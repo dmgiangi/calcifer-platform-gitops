@@ -42,9 +42,6 @@ spec:
     args:
       - "server"
       - "-config=/vault/config/vault.json"
-    volumeMounts:
-      - name: data
-        mountPath: /vault/data
 
   # internal config
   config:
