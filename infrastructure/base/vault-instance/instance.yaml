@@ -39,8 +39,6 @@ spec:
         value: "true"
       - name: SKIP_CHOWN
         value: "true"
-      - name: VAULT_ADDR
-        value: "http://127.0.0.1:8200"
     args: ["server", "-config=/vault/config/vault.json"]
     volumeMounts:
       - name: data
@@ -50,13 +48,15 @@ spec:
     readinessProbe:
       exec:
         command: ["/bin/sh", "-c", "VAULT_ADDR=http://127.0.0.1:8200 vault status"]
-      initialDelaySeconds: 5
+      initialDelaySeconds: 10
       periodSeconds: 10
+      timeoutSeconds: 5
     livenessProbe:
       exec:
         command: ["/bin/sh", "-c", "VAULT_ADDR=http://127.0.0.1:8200 vault status"]
       initialDelaySeconds: 30
       periodSeconds: 20
+      timeoutSeconds: 5
 
   # internal config
   config:
