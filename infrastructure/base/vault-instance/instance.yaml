@@ -31,6 +31,15 @@ spec:
           requests:
             storage: 5Gi
 
+  #Mount Storage
+  vaultContainerSpec:
+    name: vault
+    env:
+      - name: SKIP_SETCAP
+        value: "true"
+      - name: SKIP_CHOWN
+        value: "true"
+
   # internal config
   config:
     storage:
