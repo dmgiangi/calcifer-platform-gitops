@@ -39,6 +39,8 @@ spec:
         value: "true"
       - name: SKIP_CHOWN
         value: "true"
+      - name: VAULT_ADDR
+        value: "http://127.0.0.1:8200"
     args: ["server", "-config=/vault/config/vault.json"]
     volumeMounts:
       - name: data
@@ -46,17 +48,15 @@ spec:
       - name: vault-config
         mountPath: /vault/config
     readinessProbe:
-      httpGet:
-        path: /v1/sys/health?standbyok=true
-        port: 8200
-        scheme: HTTP
-        host: 127.0.0.1
+      exec:
+        command: ["/bin/sh", "-c", "vault status -tls-skip-verify"]
+      initialDelaySeconds: 5
+      periodSeconds: 10
     livenessProbe:
-      httpGet:
-        path: /v1/sys/health?standbyok=true
-        port: 8200
-        scheme: HTTP
-        host: 127.0.0.1
+      exec:
+        command: ["/bin/sh", "-c", "vault status -tls-skip-verify"]
+      initialDelaySeconds: 30
+      periodSeconds: 20
 
   # internal config
   config:
@@ -65,12 +65,12 @@ spec:
         path: "/vault/data"
     listener:
       tcp:
-        address: "0.0.0.0:8200"
-        cluster_address: "0.0.0.0:8201"
+        address: "127.0.0.1:8200"
+        cluster_address: "127.0.0.1:8201"
         tls_disable: true
     ui: true
     disable_mlock: true
-    api_addr: "http://vault.vault:8200"
+    api_addr: "http://vault-0.vault-internal:8200"
     cluster_addr: "http://vault-0.vault-internal:8201"
 
   vaultPodSpec:
