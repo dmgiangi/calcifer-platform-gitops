@@ -33,6 +33,7 @@ spec:
 
   #Mount Storage
   vaultContainerSpec:
+    name: vault
     env:
       - name: SKIP_SETCAP
         value: "true"
