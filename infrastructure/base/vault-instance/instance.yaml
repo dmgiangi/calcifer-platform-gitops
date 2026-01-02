@@ -46,17 +46,15 @@ spec:
       - name: vault-config
         mountPath: /vault/config
     readinessProbe:
-      exec:
-        command: ["/bin/sh", "-c", "VAULT_ADDR=http://127.0.0.1:8200 vault status"]
-      initialDelaySeconds: 10
+      tcpSocket:
+        port: 8200
+      initialDelaySeconds: 5
       periodSeconds: 10
-      timeoutSeconds: 5
     livenessProbe:
-      exec:
-        command: ["/bin/sh", "-c", "VAULT_ADDR=http://127.0.0.1:8200 vault status"]
+      tcpSocket:
+        port: 8200
       initialDelaySeconds: 30
       periodSeconds: 20
-      timeoutSeconds: 5
 
   # internal config
   config:
