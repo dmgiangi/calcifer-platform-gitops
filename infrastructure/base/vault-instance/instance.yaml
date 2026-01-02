@@ -45,6 +45,18 @@ spec:
         mountPath: /vault/data
       - name: vault-config
         mountPath: /vault/config
+    readinessProbe:
+      httpGet:
+        path: /v1/sys/health?standbyok=true
+        port: 8200
+        scheme: HTTP
+        host: 127.0.0.1
+    livenessProbe:
+      httpGet:
+        path: /v1/sys/health?standbyok=true
+        port: 8200
+        scheme: HTTP
+        host: 127.0.0.1
 
   # internal config
   config:
