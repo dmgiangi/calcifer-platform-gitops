@@ -55,7 +55,7 @@ spec:
         path: "/vault/data"
     listener:
       tcp:
-        address: "127.0.0.1:8202"
+        address: "0.0.0.0:8202"
         cluster_address: "0.0.0.0:8201"
         tls_disable: true
     ui: true
