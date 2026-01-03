@@ -43,39 +43,22 @@ spec:
     # These create the standard K8s secret, which we ignore via the command override
     auth:
       adminUser: "admin"
-      adminPassword: "placeholder-admin-password-overridden-by-vault"
-
-    # VAULT CONFIGURATION
-    podAnnotations:
-      vault.hashicorp.com/agent-inject: "true"
-      vault.hashicorp.com/role: "keycloak-role"
-
-      # INJECTION: Environment Variable File
-      # We inject a single file containing exports for all sensitive variables
-      vault.hashicorp.com/agent-inject-secret-keycloak-env: "secret/data/applications/keycloak"
-      vault.hashicorp.com/agent-inject-template-keycloak-env: |
-        [[ with secret "secret/data/applications/keycloak" ]]
-        export KC_DB_PASSWORD="]"
-        export KC_BOOTSTRAP_ADMIN_PASSWORD="]"
-        # Optional: Inject other sensitive params like TLS keystore passwords here
-        [[ end ]]
-
-      # DELIMITERS: Custom [[ ]] to avoid Helm conflict
-      vault.hashicorp.com/agent-template-left-delim: "[["
-      vault.hashicorp.com/agent-template-right-delim: "]]"
-
-    # COMMAND OVERRIDE: The Core Mechanism
-    # 1. Start a shell
-    # 2. Source the injected secrets file
-    # 3. Execute the standard Bitnami entrypoint chain
-    command: ["/bin/bash", "-c"]
-    args:
-      - |
-        source /vault/secrets/keycloak-env && \
-        /opt/bitnami/scripts/keycloak/entrypoint.sh /opt/bitnami/scripts/keycloak/run.sh
+      adminPassword: "placeholder-admin-password-overridden-by-env"
 
     # KEYCLOAK 25+ CONFIGURATION
     # Bitnami charts translate these into KC_* env vars or build options
+    extraEnvVars:
+      - name: KC_DB_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: keycloak-credentials
+            key: db-password
+      - name: KC_BOOTSTRAP_ADMIN_PASSWORD
+        valueFrom:
+          secretKeyRef:
+            name: keycloak-credentials
+            key: admin-password
+
     production: true
     proxyHeaders: "xforwarded"
     httpRelativePath: "/"

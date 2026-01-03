@@ -5,4 +5,3 @@ resources:
   - serviceaccount.yaml
   - instance.yaml
   - ingress.yaml
-  - vault-init-job.yaml

@@ -43,48 +43,23 @@ spec:
 
     # POD CONFIGURATION: Primary Node
     primary:
-      # ANNOTATIONS: Vault Agent Injection
-      podAnnotations:
-        # Enable the Vault Agent Sidecar
-        vault.hashicorp.com/agent-inject: "true"
-        # Specify the Vault Role bound to the ServiceAccount
-        vault.hashicorp.com/role: "postgresql-role"
-
-        # INJECTION: Postgres Admin Password
-        # Target path: /vault/secrets/postgres-password
-        vault.hashicorp.com/agent-inject-secret-postgres-password: "secret/data/infrastructure/postgresql"
-        # TEMPLATE: Use custom delimiters [[ ]] to avoid Helm conflict
-        vault.hashicorp.com/agent-inject-template-postgres-password: |
-          [[ with secret "secret/data/infrastructure/postgresql" ]]
-          [[ end ]]
-
-        # INJECTION: Application User (Keycloak) Password
-        # Target path: /vault/secrets/app-password
-        vault.hashicorp.com/agent-inject-secret-app-password: "secret/data/infrastructure/postgresql"
-        vault.hashicorp.com/agent-inject-template-app-password: |
-          [[ with secret "secret/data/infrastructure/postgresql" ]]
-          [[ end ]]
-
-        # DELIMITER CONFIGURATION
-        vault.hashicorp.com/agent-template-left-delim: "[["
-        vault.hashicorp.com/agent-template-right-delim: "]]"
-
       # RUNTIME OVERRIDES: Pointing Bitnami to the injected files
       # We use the standard Bitnami _FILE convention for Postgres 16+
       extraEnvVars:
         # 1. Admin 'postgres' user password
-        - name: POSTGRESQL_POSTGRES_PASSWORD_FILE
-          value: /vault/secrets/postgres-password
+        - name: POSTGRESQL_POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-credentials
+              key: postgres-password
 
         # 2. Custom 'keycloak' user password
         # When a custom user is defined, POSTGRESQL_PASSWORD applies to that user.
-        - name: POSTGRESQL_PASSWORD_FILE
-          value: /vault/secrets/app-password
-
-        # 3. Safety: Allow empty passwords during the initial check
-        # (This prevents the script from exiting before it reads the _FILE vars)
-        - name: ALLOW_EMPTY_PASSWORD
-          value: "yes"
+        - name: POSTGRESQL_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: keycloak-credentials
+              key: db-password
 
     # PERSISTENCE: Standard configuration
     persistence:
