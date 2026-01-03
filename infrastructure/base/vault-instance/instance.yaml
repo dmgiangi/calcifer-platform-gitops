@@ -4,7 +4,7 @@ metadata:
   name: vault
   namespace: vault
 spec:
-  size: 2
+  size: 1
   image: hashicorp/vault:1.15.2
 
   # Service Account
@@ -47,6 +47,24 @@ spec:
         mountPath: /vault/config
       - name: vault-tls
         mountPath: /vault/tls
+    livenessProbe:
+      httpGet:
+        path: /v1/sys/health?standbyok=true
+        port: 8200
+        scheme: HTTPS
+      failureThreshold: 3
+      periodSeconds: 10
+      successThreshold: 1
+      timeoutSeconds: 1
+    readinessProbe:
+      httpGet:
+        path: /v1/sys/health?standbyok=true&perfstandbyok=true&drsecondarycode=299
+        port: 8200
+        scheme: HTTPS
+      failureThreshold: 2
+      periodSeconds: 5
+      successThreshold: 1
+      timeoutSeconds: 1
 
   # internal config
   config:
