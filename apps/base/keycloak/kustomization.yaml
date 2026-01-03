@@ -1,7 +1,6 @@
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 resources:
-- core-infra.yaml
-- apps.yaml
-- gotk-components.yaml
-- gotk-sync.yaml
+  - namespace.yaml
+  - release-postgres.yaml
+  - release-keycloak.yaml

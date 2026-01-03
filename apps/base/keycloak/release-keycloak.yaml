@@ -1,0 +1,67 @@
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: keycloak
+  namespace: keycloak
+spec:
+  interval: 1h
+  chart:
+    spec:
+      chart: keycloak
+      version: 22.1.0
+      sourceRef:
+        kind: HelmRepository
+        name: bitnami
+        namespace: flux-system
+  values:
+    # Disable the integrated PostgreSQL as we use a separate HelmRelease
+    postgresql:
+      enabled: false
+
+    # External Database Configuration
+    externalDatabase:
+      host: postgresql
+      port: 5432
+      user: keycloak
+      database: keycloak
+      # KC_DB_PASSWORD will be injected via Vault Agent
+
+    # Ingress Configuration
+    ingress:
+      enabled: true
+      ingressClassName: kong
+      hostname: auth.calcifer.platform.com
+      annotations:
+        cert-manager.io/cluster-issuer: letsencrypt-prod
+        konghq.com/protocols: https
+      tls: true
+
+    # Keycloak Configuration
+    auth:
+      adminUser: admin
+      # KC_BOOTSTRAP_ADMIN_PASSWORD will be injected via Vault Agent
+
+    proxy: edge
+
+    # Vault Agent Injector Annotations
+    podAnnotations:
+      vault.hashicorp.com/agent-inject: "true"
+      vault.hashicorp.com/role: "keycloak"
+      vault.hashicorp.com/agent-inject-status: "update"
+      # Define the secret to inject and the template to format it
+      vault.hashicorp.com/agent-inject-secret-config: "secret/data/keycloak/config"
+      vault.hashicorp.com/agent-inject-template-config: |
+        {{- with secret "secret/data/keycloak/config" -}}
+        export KC_DB_PASSWORD='{{ .Data.data.db_password }}'
+        export KC_BOOTSTRAP_ADMIN_PASSWORD='{{ .Data.data.admin_password }}'
+        {{- end -}}
+
+    # Override the default command to source injected secrets
+    command:
+      - /bin/bash
+      - -c
+      - |
+        if [ -f /vault/secrets/config ]; then
+          source /vault/secrets/config
+        fi
+        /opt/bitnami/scripts/keycloak/run.sh
