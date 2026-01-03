@@ -39,6 +39,7 @@ spec:
         value: "true"
       - name: SKIP_CHOWN
         value: "true"
+    args: [ "server" ]
 
   # internal config
   config:
