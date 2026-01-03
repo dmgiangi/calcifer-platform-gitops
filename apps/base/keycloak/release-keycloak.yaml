@@ -41,3 +41,9 @@ spec:
       type: ClusterIp
       ports:
         http: 80
+    proxy: edge
+    extraEnvVars:
+      - name: KC_HOSTNAME
+        value: "auth.dmgiangi.dev"
+      - name: KC_PROXY_HEADERS
+        value: "xforwarded"
