@@ -7,4 +7,4 @@ spec:
   interval: 1h
   url: https://github.com/keycloak/keycloak-k8s-resources
   ref:
-    branch: "26.4.7"
+    tag: "26.4.7"
