@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: keycloak-vault-init
+  namespace: keycloak
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: keycloak-vault-init
+  namespace: keycloak
+rules: []
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: keycloak-vault-init
+  namespace: keycloak
+subjects:
+  - kind: ServiceAccount
+    name: keycloak-vault-init
+    namespace: keycloak
+roleRef:
+  kind: Role
+  name: keycloak-vault-init
+  apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: vault-init-secrets
+  namespace: keycloak
+  annotations:
+    "helm.sh/hook": pre-install,pre-upgrade
+    "helm.sh/hook-weight": "-5"
+spec:
+  ttlSecondsAfterFinished: 600
+  template:
+    spec:
+      serviceAccountName: keycloak-vault-init
+      restartPolicy: OnFailure
+      containers:
+        - name: vault-init
+          image: hashicorp/vault:1.15.2
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              export VAULT_ADDR=https://vault.vault:8200
+              export VAULT_SKIP_VERIFY=true
+              
+              echo "Waiting for Vault..."
+              # Simple retry loop
+              until vault status > /dev/null 2>&1 || [ $? -eq 2 ]; do
+                echo "Vault not ready..."
+                sleep 2
+              done
+
+              echo "Authenticating..."
+              KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+              export VAULT_TOKEN=$(vault write -field=token auth/kubernetes/login role=keycloak-init jwt=$KUBE_TOKEN)
+              
+              if [ -z "$VAULT_TOKEN" ]; then
+                 echo "Login failed"
+                 exit 1
+              fi
+              echo "Authenticated."
+
+              # Check/Create Database Password
+              # Using kv get to check existence. 
+              # secret/data/... path for kv-v2 read, but vault kv get abstracts it mostly or use metadata
+              
+              # Check if metadata exists (kv v2)
+              if ! vault kv get -mount=secret keycloak/database > /dev/null 2>&1; then
+                echo "Generating Database Password..."
+                DB_PASS=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 24)
+                vault kv put -mount=secret keycloak/database password="$DB_PASS"
+                echo "Database Password created."
+              else
+                echo "Database Password already exists."
+              fi
+
+              # Check/Create Config Secrets
+              if ! vault kv get -mount=secret keycloak/config > /dev/null 2>&1; then
+                echo "Generating Keycloak Config Secrets..."
+                # Read back the db pass
+                DB_PASS=$(vault kv get -mount=secret -field=password keycloak/database)
+                ADMIN_PASS=$(tr -dc A-Za-z0-9 </dev/urandom | head -c 24)
+                vault kv put -mount=secret keycloak/config db_password="$DB_PASS" admin_password="$ADMIN_PASS"
+                echo "Keycloak Config Secrets created."
+              else
+                 echo "Keycloak Config Secrets already exists."
+              fi
