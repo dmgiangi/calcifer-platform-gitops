@@ -31,45 +31,15 @@ spec:
           requests:
             storage: 5Gi
 
-  #Mount Storage
-  vaultContainerSpec:
-    name: vault
-    env:
-      - name: SKIP_SETCAP
-        value: "true"
-      - name: SKIP_CHOWN
-        value: "true"
-    args: ["server", "-config=/vault/config/vault.json"]
-    volumeMounts:
-      - name: data
-        mountPath: /vault/data
-      - name: vault-config
-        mountPath: /vault/config
-    readinessProbe:
-      httpGet:
-        path: /v1/sys/health?standbyok=true
-        port: 8400
-        scheme: HTTP
-    livenessProbe:
-      httpGet:
-        path: /v1/sys/health?standbyok=true
-        port: 8400
-        scheme: HTTP
-
   # internal config
   config:
     storage:
       raft:
         path: "/vault/data"
-    listener:
-      tcp:
-        address: "0.0.0.0:8400"
-        cluster_address: "0.0.0.0:8201"
-        tls_disable: true
     ui: true
     disable_mlock: true
-    api_addr: "http://vault.vault:8400"
-    cluster_addr: "http://vault-0.vault-internal:8201"
+    api_addr: "http://vault.vault:8200"
+    cluster_addr: "http://$(HOSTNAME).vault-internal:8201"
 
   vaultPodSpec:
     securityContext:
