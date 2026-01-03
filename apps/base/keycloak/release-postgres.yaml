@@ -59,7 +59,6 @@ spec:
         # TEMPLATE: Use custom delimiters [[ ]] to avoid Helm conflict
         vault.hashicorp.com/agent-inject-template-postgres-password: |
           [[ with secret "secret/data/infrastructure/postgresql" ]]
-         ]
           [[ end ]]
 
         # INJECTION: Application User Password
