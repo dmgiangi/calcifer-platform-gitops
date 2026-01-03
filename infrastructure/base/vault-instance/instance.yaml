@@ -40,16 +40,29 @@ spec:
       - name: SKIP_CHOWN
         value: "true"
     args: [ "server" ]
+    volumeMounts:
+      - name: data
+        mountPath: /vault/data
+      - name: vault-config
+        mountPath: /vault/config
+      - name: vault-tls
+        mountPath: /vault/tls
 
   # internal config
   config:
     storage:
       raft:
         path: "/vault/data"
+    listener:
+      tcp:
+        address: "0.0.0.0:8200"
+        tls_disable: false
+        tls_cert_file: "/vault/tls/server.crt"
+        tls_key_file: "/vault/tls/server.key"
     ui: true
     disable_mlock: true
-    api_addr: "http://vault.vault:8200"
-    cluster_addr: "http://$(HOSTNAME).vault-internal:8201"
+    api_addr: "https://vault.vault:8200"
+    cluster_addr: "https://$(HOSTNAME).vault-internal:8201"
 
   vaultPodSpec:
     securityContext:
