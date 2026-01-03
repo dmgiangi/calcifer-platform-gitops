@@ -48,12 +48,12 @@ spec:
     readinessProbe:
       httpGet:
         path: /v1/sys/health?standbyok=true
-        port: 8200
+        port: 8400
         scheme: HTTP
     livenessProbe:
       httpGet:
         path: /v1/sys/health?standbyok=true
-        port: 8200
+        port: 8400
         scheme: HTTP
 
   # internal config
@@ -63,12 +63,12 @@ spec:
         path: "/vault/data"
     listener:
       tcp:
-        address: "0.0.0.0:8200"
+        address: "0.0.0.0:8400"
         cluster_address: "0.0.0.0:8201"
         tls_disable: true
     ui: true
     disable_mlock: true
-    api_addr: "http://vault.vault:8200"
+    api_addr: "http://vault.vault:8400"
     cluster_addr: "http://vault-0.vault-internal:8201"
 
   vaultPodSpec:
