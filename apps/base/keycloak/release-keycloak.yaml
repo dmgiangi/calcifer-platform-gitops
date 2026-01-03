@@ -51,10 +51,10 @@ spec:
       # Define the secret to inject and the template to format it
       vault.hashicorp.com/agent-inject-secret-config: "secret/data/keycloak/config"
       vault.hashicorp.com/agent-inject-template-config: |
-        {{- with secret "secret/data/keycloak/config" -}}
-        export KC_DB_PASSWORD='{{ .Data.data.db_password }}'
-        export KC_BOOTSTRAP_ADMIN_PASSWORD='{{ .Data.data.admin_password }}'
-        {{- end -}}
+        {{ "{{" }}- with secret "secret/data/keycloak/config" -{{ "}}" }}
+        export KC_DB_PASSWORD='{{ "{{" }} .Data.data.db_password {{ "}}" }}'
+        export KC_BOOTSTRAP_ADMIN_PASSWORD='{{ "{{" }} .Data.data.admin_password {{ "}}" }}'
+        {{ "{{" }}- end -{{ "}}" }}
 
     # Override the default command to source injected secrets
     command:
