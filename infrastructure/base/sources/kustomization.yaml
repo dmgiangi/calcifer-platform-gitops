@@ -6,5 +6,5 @@ resources:
   - ./kong-repository.yaml
   - ./jetstack-repository.yaml
   - ./tf-controller-repository.yaml
-  - codecentric-repository.yaml
+  - ./bitnami-repository.yaml
   - ./vault-repository.yaml
