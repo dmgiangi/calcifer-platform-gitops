@@ -15,7 +15,9 @@ spec:
         namespace: flux-system
   values:
     image:
-      tag: "26.0.0"
+      registry: public.ecr.aws
+      repository: bitnami/keycloak
+      tag: "26"
     # Disable the integrated PostgreSQL as we use a separate HelmRelease
     postgresql:
       enabled: false
