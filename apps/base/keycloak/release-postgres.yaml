@@ -2,50 +2,100 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: postgresql
-  namespace: keycloak
+  namespace: database
+  labels:
+    app.kubernetes.io/name: postgresql
+    app.kubernetes.io/part-of: iam-stack
 spec:
-  interval: 1h
+  releaseName: postgresql
+  targetNamespace: database
+  interval: 10m
+  install:
+    remediation:
+      retries: 3
+  upgrade:
+    remediation:
+      retries: 3
+
+  # OCI Chart Reference
   chart:
     spec:
       chart: postgresql
       version: 18.1.15
       sourceRef:
         kind: HelmRepository
-        name: bitnami
+        name: bitnami-oci
         namespace: flux-system
+      interval: 1h
+
   values:
+    # GLOBAL: Dummy Credentials to pass Bitnami Chart Validation
+    # These values are required by the chart's strict schema validation but will be overridden at runtime.
     global:
-      security:
-        allowInsecureImages: true
-    image:
-      registry: public.ecr.aws
-      repository: bitnami/postgresql
-      tag: "16"
-    auth:
-      database: keycloak
-      username: keycloak
-      usePasswordFiles: true
-      # PLACEHOLDER: Required to pass Helm chart validation checks (NOTES.txt).
-      # The actual authentication is handled via the file injected by Vault.
-      password: "placeholder-password-managed-by-vault"
-      postgresPassword: "placeholder-admin-password-managed-by-vault"
+      postgresql:
+        auth:
+          postgresPassword: "placeholder-admin-password-for-validation"
+          username: "keycloak"
+          password: "placeholder-user-password-for-validation"
+          database: "keycloak_db"
+
+    # ARCHITECTURE: Standalone (for simplicity, HA chart follows similar patterns)
+    architecture: standalone
+
+    # POD CONFIGURATION: Primary Node
     primary:
-      persistence:
-        enabled: true
-        size: 8Gi
-      # Configure the container to look for the password in the Vault-injected file
-      extraEnvVars:
-        - name: POSTGRES_PASSWORD_FILE
-          value: /vault/secrets/credentials
+      # ANNOTATIONS: Vault Agent Injection
       podAnnotations:
+        # Enable the Vault Agent Sidecar
         vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: "keycloak"
-        # Inject the secret into /vault/secrets/credentials
-        vault.hashicorp.com/agent-inject-secret-credentials: "secret/data/keycloak/database"
-        # Template: Only output the password value, no keys
-        vault.hashicorp.com/agent-inject-template-credentials-left-delimiter: "[["
-        vault.hashicorp.com/agent-inject-template-credentials-right-delimiter: "]]"
-        vault.hashicorp.com/agent-inject-template-credentials: |
-          [[- with secret "secret/data/keycloak/database" -]]
-          [[ .Data.data.password ]]
-          [[- end -]]
+        # Specify the Vault Role bound to the ServiceAccount
+        vault.hashicorp.com/role: "postgresql-role"
+
+        # INJECTION: Postgres Admin Password
+        # Target path: /vault/secrets/postgres-password
+        vault.hashicorp.com/agent-inject-secret-postgres-password: "secret/data/infrastructure/postgresql"
+        # TEMPLATE: Use custom delimiters [[ ]] to avoid Helm conflict
+        vault.hashicorp.com/agent-inject-template-postgres-password: |
+          [[ with secret "secret/data/infrastructure/postgresql" ]]
+         ]
+          [[ end ]]
+
+        # INJECTION: Application User Password
+        # Target path: /vault/secrets/app-password
+        vault.hashicorp.com/agent-inject-secret-app-password: "secret/data/infrastructure/postgresql"
+        vault.hashicorp.com/agent-inject-template-app-password: |
+          [[ with secret "secret/data/infrastructure/postgresql" ]]
+         ]
+          [[ end ]]
+
+        # DELIMITER CONFIGURATION
+        vault.hashicorp.com/agent-template-left-delim: "[["
+        vault.hashicorp.com/agent-template-right-delim: "]]"
+
+      # RUNTIME OVERRIDES: Pointing Bitnami to the injected files
+      extraEnvVars:
+        # Override the dummy admin password
+        - name: POSTGRES_PASSWORD_FILE
+          value: /vault/secrets/postgres-password
+        # Override the dummy app user password
+        - name: POSTGRES_POSTGRES_PASSWORD_FILE
+          value: /vault/secrets/app-password
+        # Override the dummy app user password (alternative variable name depending on specific bitnami version logic)
+        - name: PASSWORD_FILE
+          value: /vault/secrets/app-password
+        # Explicitly allow empty password env vars since we are using files
+        - name: ALLOW_EMPTY_PASSWORD
+          value: "yes"
+
+    # PERSISTENCE: Standard configuration
+    persistence:
+      enabled: true
+      size: 8Gi
+      accessModes:
+        - ReadWriteOnce
+
+    # NETWORKING
+    service:
+      type: ClusterIP
+      ports:
+        postgresql: 5432

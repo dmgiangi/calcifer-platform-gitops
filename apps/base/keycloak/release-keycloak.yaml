@@ -2,76 +2,93 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: keycloak
-  namespace: keycloak
+  namespace: iam
+  labels:
+    app.kubernetes.io/name: keycloak
+    app.kubernetes.io/part-of: iam-stack
 spec:
-  interval: 1h
+  releaseName: keycloak
+  targetNamespace: iam
+  interval: 10m
+  install:
+    remediation:
+      retries: 3
+
   chart:
     spec:
       chart: keycloak
       version: 25.1.0
       sourceRef:
         kind: HelmRepository
-        name: bitnami
+        name: bitnami-oci
         namespace: flux-system
+      interval: 1h
+
   values:
-    global:
-      security:
-        allowInsecureImages: true
-    image:
-      registry: public.ecr.aws
-      repository: bitnami/keycloak
-      tag: "26"
-    # Disable the integrated PostgreSQL as we use a separate HelmRelease
+    # DATABASE: Disable bundled Postgres
     postgresql:
       enabled: false
 
-    # External Database Configuration
+    # EXTERNAL DB: Dummy Configuration for Validation
+    # We provide the structure so the chart generates the necessary config files (keycloak.conf),
+    # but the password is a placeholder.
     externalDatabase:
-      host: postgresql
+      host: "postgresql.database.svc.cluster.local"
       port: 5432
-      user: keycloak
-      database: keycloak
-      # KC_DB_PASSWORD will be injected via Vault Agent
+      user: "keycloak"
+      database: "keycloak_db"
+      password: "placeholder-db-password-overridden-by-vault"
 
-    # Ingress Configuration
-    ingress:
-      enabled: true
-      ingressClassName: kong
-      hostname: auth.calcifer.platform.com
-      annotations:
-        cert-manager.io/cluster-issuer: letsencrypt-prod
-        konghq.com/protocols: https
-      tls: true
-
-    # Keycloak Configuration
+    # AUTH: Dummy Admin Credentials
     auth:
-      adminUser: admin
-      # PLACEHOLDER: Required by Helm validation, but overridden by Vault injection at runtime
-      adminPassword: "placeholder-password-managed-by-vault"
+      adminUser: "admin"
+      adminPassword: "placeholder-admin-password-overridden-by-vault"
 
-    proxy: edge
-
-    # Vault Agent Injector Annotations
+    # VAULT CONFIGURATION
     podAnnotations:
       vault.hashicorp.com/agent-inject: "true"
-      vault.hashicorp.com/role: "keycloak"
-      vault.hashicorp.com/agent-inject-status: "update"
-      # Define the secret to inject and the template to format it
-      vault.hashicorp.com/agent-inject-secret-config: "secret/data/keycloak/config"
-      vault.hashicorp.com/agent-inject-template-config-left-delimiter: "[["
-      vault.hashicorp.com/agent-inject-template-config-right-delimiter: "]]"
-      vault.hashicorp.com/agent-inject-template-config: |
-        [[- with secret "secret/data/keycloak/config" -]]
-        export KC_DB_PASSWORD='[[ .Data.data.db_password ]]'
-        export KC_BOOTSTRAP_ADMIN_PASSWORD='[[ .Data.data.admin_password ]]'
-        [[- end -]]
+      vault.hashicorp.com/role: "keycloak-role"
 
-    # Override the default command to source injected secrets
-    command:
-      - /bin/bash
-      - -c
+      # INJECTION: Environment Variable File
+      # We inject a single file containing exports for all sensitive variables
+      vault.hashicorp.com/agent-inject-secret-keycloak-env: "secret/data/applications/keycloak"
+      vault.hashicorp.com/agent-inject-template-keycloak-env: |
+        [[ with secret "secret/data/applications/keycloak" ]]
+        export KC_DB_PASSWORD="]"
+        export KC_BOOTSTRAP_ADMIN_PASSWORD="]"
+        # Optional: Inject other sensitive params like TLS keystore passwords here
+        [[ end ]]
+
+      # DELIMITERS: Custom [[ ]] to avoid Helm conflict
+      vault.hashicorp.com/agent-template-left-delim: "[["
+      vault.hashicorp.com/agent-template-right-delim: "]]"
+
+    # COMMAND OVERRIDE: The Core Mechanism
+    # 1. Start a shell
+    # 2. Source the injected secrets file
+    # 3. Execute the standard Bitnami entrypoint chain
+    command: ["/bin/bash", "-c"]
+    args:
       - |
-        if [ -f /vault/secrets/config ]; then
-          source /vault/secrets/config
-        fi
-        /opt/bitnami/scripts/keycloak/run.sh
+        source /vault/secrets/keycloak-env && \
+        /opt/bitnami/scripts/keycloak/entrypoint.sh /opt/bitnami/scripts/keycloak/run.sh
+
+    # KEYCLOAK 25+ CONFIGURATION
+    # Bitnami charts translate these into KC_* env vars or build options
+    production: true
+    proxyHeaders: "xforwarded"
+    httpRelativePath: "/"
+
+    # NETWORK & EXPOSURE
+    service:
+      type: ClusterIP
+      ports:
+        http: 80
+        https: 443
+
+    ingress:
+      enabled: true
+      hostname: "login.example.com"
+      ingressClassName: "nginx"
+      annotations:
+        nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"
