@@ -7,6 +7,10 @@ spec:
   size: 1
   image: hashicorp/vault:1.15.2
 
+  # Annotations for the Service created by the Operator
+  serviceAnnotations:
+    konghq.com/protocol: "https"
+
   # Service Account
   serviceAccount: vault
 
