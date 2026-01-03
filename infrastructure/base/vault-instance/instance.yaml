@@ -94,39 +94,20 @@ spec:
       fsGroup: 1000
 
     externalConfig:
-
       auth:
-
         - type: kubernetes
-
           roles:
-
             - name: keycloak-init
-
               bound_service_account_names: ["keycloak-vault-init"]
-
               bound_service_account_namespaces: ["keycloak"]
-
               policies: ["allow_secrets"]
-
               ttl: 1h
-
             # Also allow the keycloak app itself to read secrets (if using vault agent auth)
-
             - name: keycloak
-
               bound_service_account_names: ["keycloak", "default"]
-
               bound_service_account_namespaces: ["keycloak"]
-
               policies: ["allow_secrets"]
-
               ttl: 1h
-
       policies:
-
         - name: allow_secrets
-
           rules: path "secret/*" { capabilities = ["create", "read", "update", "delete", "list"] }
-
-  
