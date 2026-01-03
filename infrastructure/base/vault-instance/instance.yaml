@@ -10,6 +10,7 @@ spec:
   # Annotations for the Service created by the Operator
   serviceAnnotations:
     konghq.com/protocol: "https"
+    konghq.com/tls-skip-verify: "true"
 
   # Service Account
   serviceAccount: vault
