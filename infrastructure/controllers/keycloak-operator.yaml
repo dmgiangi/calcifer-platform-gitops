@@ -9,6 +9,7 @@ spec:
   sourceRef:
     kind: GitRepository
     name: keycloak-k8s-resources
+    namespace: flux-system
   path: "./kubernetes"
   targetNamespace: keycloak
   postBuild:
