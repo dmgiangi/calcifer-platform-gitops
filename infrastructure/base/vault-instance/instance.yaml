@@ -39,6 +39,8 @@ spec:
         value: "true"
       - name: SKIP_CHOWN
         value: "true"
+      - name: VAULT_ADDR
+        value: "http://127.0.0.1:8200"
     args: ["server", "-config=/vault/config/vault.json"]
     volumeMounts:
       - name: data
@@ -51,6 +53,11 @@ spec:
     storage:
       raft:
         path: "/vault/data"
+    listener:
+      tcp:
+        address: "0.0.0.0:8200"
+        cluster_address: "0.0.0.0:8201"
+        tls_disable: true
     ui: true
     disable_mlock: true
     api_addr: "http://vault.vault:8200"
