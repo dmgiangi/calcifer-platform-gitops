@@ -21,8 +21,11 @@ spec:
     auth:
       database: keycloak
       username: keycloak
-      # Password authentication is delegated to the file injected by Vault
       usePasswordFiles: true
+      # PLACEHOLDER: Required to pass Helm chart validation checks (NOTES.txt).
+      # The actual authentication is handled via the file injected by Vault.
+      password: "placeholder-password-managed-by-vault"
+      postgresPassword: "placeholder-admin-password-managed-by-vault"
     primary:
       persistence:
         enabled: true

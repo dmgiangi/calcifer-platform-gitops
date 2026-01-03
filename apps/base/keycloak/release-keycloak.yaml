@@ -43,7 +43,8 @@ spec:
     # Keycloak Configuration
     auth:
       adminUser: admin
-      # KC_BOOTSTRAP_ADMIN_PASSWORD will be injected via Vault Agent
+      # PLACEHOLDER: Required by Helm validation, but overridden by Vault injection at runtime
+      adminPassword: "placeholder-password-managed-by-vault"
 
     proxy: edge
 
