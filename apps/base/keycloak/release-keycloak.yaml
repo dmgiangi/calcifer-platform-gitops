@@ -2,13 +2,13 @@ apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
   name: keycloak
-  namespace: iam
+  namespace: keycloak
   labels:
     app.kubernetes.io/name: keycloak
     app.kubernetes.io/part-of: iam-stack
 spec:
   releaseName: keycloak
-  targetNamespace: iam
+  targetNamespace: keycloak
   interval: 10m
   install:
     remediation:
