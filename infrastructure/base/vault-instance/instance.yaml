@@ -46,21 +46,26 @@ spec:
       - name: vault-config
         mountPath: /vault/config
     readinessProbe:
-      exec:
-        command: ["/bin/sh", "-c", "VAULT_ADDR=http://127.0.0.1:8200 vault status"]
-      initialDelaySeconds: 5
-      periodSeconds: 10
+      httpGet:
+        path: /v1/sys/health?standbyok=true
+        port: 8200
+        scheme: HTTP
     livenessProbe:
-      exec:
-        command: ["/bin/sh", "-c", "VAULT_ADDR=http://127.0.0.1:8200 vault status"]
-      initialDelaySeconds: 30
-      periodSeconds: 20
+      httpGet:
+        path: /v1/sys/health?standbyok=true
+        port: 8200
+        scheme: HTTP
 
-  # internal config (No explicit listener block here to avoid operator duplication)
+  # internal config
   config:
     storage:
       raft:
         path: "/vault/data"
+    listener:
+      tcp:
+        address: "0.0.0.0:8200"
+        cluster_address: "0.0.0.0:8201"
+        tls_disable: true
     ui: true
     disable_mlock: true
     api_addr: "http://vault.vault:8200"
