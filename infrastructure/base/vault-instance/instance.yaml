@@ -39,6 +39,12 @@ spec:
         value: "true"
       - name: SKIP_CHOWN
         value: "true"
+    args: ["server", "-config=/vault/config/vault.json"]
+    volumeMounts:
+      - name: data
+        mountPath: /vault/data
+      - name: vault-config
+        mountPath: /vault/config
 
   # internal config
   config:
