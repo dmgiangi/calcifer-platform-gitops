@@ -40,19 +40,15 @@ spec:
       password: "placeholder-db-password-overridden-by-vault"
 
     # AUTH: Dummy Admin Credentials
+    # These create the standard K8s secret, which we ignore via the command override
     auth:
       adminUser: "admin"
       adminPassword: "placeholder-admin-password-overridden-by-vault"
 
-    # Vault Agent Injector Annotations
+    # VAULT CONFIGURATION
     podAnnotations:
       vault.hashicorp.com/agent-inject: "true"
-      vault.hashicorp.com/role: "keycloak"
-      vault.hashicorp.com/agent-run-as-user: "1001"
-      vault.hashicorp.com/agent-run-as-group: "1001"
-      vault.hashicorp.com/agent-inject-status: "update"
-      # Define the secret to inject and the template to format it
-
+      vault.hashicorp.com/role: "keycloak-role"
 
       # INJECTION: Environment Variable File
       # We inject a single file containing exports for all sensitive variables

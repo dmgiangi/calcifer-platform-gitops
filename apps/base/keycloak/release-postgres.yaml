@@ -29,15 +29,14 @@ spec:
       interval: 1h
 
   values:
-    # GLOBAL: Dummy Credentials to pass Bitnami Chart Validation
-    # These values are required by the chart's strict schema validation but will be overridden at runtime.
-    global:
-      postgresql:
-        auth:
-          postgresPassword: "placeholder-admin-password-for-validation"
-          username: "keycloak"
-          password: "placeholder-user-password-for-validation"
-          database: "keycloak_db"
+    # AUTH: Dummy Credentials to pass Bitnami Chart Validation.
+    # IMPORTANT: In the standalone chart, these MUST be at the root 'auth' level.
+    # These values satisfy Helm linting but are overridden by 'extraEnvVars' below.
+    auth:
+      username: "keycloak"
+      password: "placeholder-user-password-for-validation"
+      postgresPassword: "placeholder-admin-password-for-validation"
+      database: "keycloak_db"
 
     # ARCHITECTURE: Standalone (for simplicity, HA chart follows similar patterns)
     architecture: standalone
@@ -46,12 +45,10 @@ spec:
     primary:
       # ANNOTATIONS: Vault Agent Injection
       podAnnotations:
+        # Enable the Vault Agent Sidecar
         vault.hashicorp.com/agent-inject: "true"
-        vault.hashicorp.com/role: "keycloak"
-        vault.hashicorp.com/agent-run-as-user: "1001"
-        vault.hashicorp.com/agent-run-as-group: "1001"
-        # Inject the secret into /vault/secrets/credentials
-        vault.hashicorp.com/agent-inject-secret-credentials: "secret/data/keycloak/database"
+        # Specify the Vault Role bound to the ServiceAccount
+        vault.hashicorp.com/role: "postgresql-role"
 
         # INJECTION: Postgres Admin Password
         # Target path: /vault/secrets/postgres-password
@@ -61,12 +58,11 @@ spec:
           [[ with secret "secret/data/infrastructure/postgresql" ]]
           [[ end ]]
 
-        # INJECTION: Application User Password
+        # INJECTION: Application User (Keycloak) Password
         # Target path: /vault/secrets/app-password
         vault.hashicorp.com/agent-inject-secret-app-password: "secret/data/infrastructure/postgresql"
         vault.hashicorp.com/agent-inject-template-app-password: |
           [[ with secret "secret/data/infrastructure/postgresql" ]]
-         ]
           [[ end ]]
 
         # DELIMITER CONFIGURATION
@@ -74,17 +70,19 @@ spec:
         vault.hashicorp.com/agent-template-right-delim: "]]"
 
       # RUNTIME OVERRIDES: Pointing Bitnami to the injected files
+      # We use the standard Bitnami _FILE convention for Postgres 16+
       extraEnvVars:
-        # Override the dummy admin password
-        - name: POSTGRES_PASSWORD_FILE
+        # 1. Admin 'postgres' user password
+        - name: POSTGRESQL_POSTGRES_PASSWORD_FILE
           value: /vault/secrets/postgres-password
-        # Override the dummy app user password
-        - name: POSTGRES_POSTGRES_PASSWORD_FILE
+
+        # 2. Custom 'keycloak' user password
+        # When a custom user is defined, POSTGRESQL_PASSWORD applies to that user.
+        - name: POSTGRESQL_PASSWORD_FILE
           value: /vault/secrets/app-password
-        # Override the dummy app user password (alternative variable name depending on specific bitnami version logic)
-        - name: PASSWORD_FILE
-          value: /vault/secrets/app-password
-        # Explicitly allow empty password env vars since we are using files
+
+        # 3. Safety: Allow empty passwords during the initial check
+        # (This prevents the script from exiting before it reads the _FILE vars)
         - name: ALLOW_EMPTY_PASSWORD
           value: "yes"
 
