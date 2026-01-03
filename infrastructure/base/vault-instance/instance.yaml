@@ -46,29 +46,24 @@ spec:
       - name: vault-config
         mountPath: /vault/config
     readinessProbe:
-      tcpSocket:
-        port: 8200
+      exec:
+        command: ["/bin/sh", "-c", "VAULT_ADDR=http://127.0.0.1:8200 vault status"]
       initialDelaySeconds: 5
       periodSeconds: 10
     livenessProbe:
-      tcpSocket:
-        port: 8200
+      exec:
+        command: ["/bin/sh", "-c", "VAULT_ADDR=http://127.0.0.1:8200 vault status"]
       initialDelaySeconds: 30
       periodSeconds: 20
 
-  # internal config
+  # internal config (No explicit listener block here to avoid operator duplication)
   config:
     storage:
       raft:
         path: "/vault/data"
-    listener:
-      tcp:
-        address: "0.0.0.0:8200"
-        cluster_address: "0.0.0.0:8201"
-        tls_disable: true
     ui: true
     disable_mlock: true
-    api_addr: "http://vault-0.vault-internal:8200"
+    api_addr: "http://vault.vault:8200"
     cluster_addr: "http://vault-0.vault-internal:8201"
 
   vaultPodSpec:
