@@ -3,76 +3,41 @@ kind: HelmRelease
 metadata:
   name: keycloak
   namespace: keycloak
-  labels:
-    app.kubernetes.io/name: keycloak
-    app.kubernetes.io/part-of: iam-stack
 spec:
-  releaseName: keycloak
-  targetNamespace: keycloak
-  interval: 10m
-  install:
-    remediation:
-      retries: 3
-
+  interval: 10m0s
   chart:
     spec:
       chart: keycloak
-      version: 25.1.0
+      version: "25.x.x"
       sourceRef:
         kind: HelmRepository
         name: bitnami
         namespace: flux-system
-      interval: 1h
-
+      interval: 1h0m0s
   values:
-    # DATABASE: Disable bundled Postgres
-    postgresql:
-      enabled: false
-
-    # EXTERNAL DB: Dummy Configuration for Validation
-    # We provide the structure so the chart generates the necessary config files (keycloak.conf),
-    # but the password is a placeholder.
-    externalDatabase:
-      host: "postgresql.database.svc.cluster.local"
-      port: 5432
-      user: "keycloak"
-      database: "keycloak_db"
-      password: "placeholder-db-password-overridden-by-vault"
-
-    # AUTH: Dummy Admin Credentials
-    # These create the standard K8s secret, which we ignore via the command override
     auth:
-      adminUser: "admin"
-      adminPassword: "placeholder-admin-password-overridden-by-env"
+      adminUser: admin
+      existingSecret: keycloak-credentials
+      passwordSecretKey: admin-password
 
-    # KEYCLOAK 25+ CONFIGURATION
-    # Bitnami charts translate these into KC_* env vars or build options
-    extraEnvVars:
-      - name: KC_DB_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: keycloak-credentials
-            key: db-password
-      - name: KC_BOOTSTRAP_ADMIN_PASSWORD
-        valueFrom:
-          secretKeyRef:
-            name: keycloak-credentials
-            key: admin-password
+    # Database Configuration (bundled PostgreSQL)
+    postgresql:
+      enabled: true
+      auth:
+        # Reference the same secret for database credentials
+        existingSecret: keycloak-credentials
+        # Key in the secret for the postgres admin password
+        secretKeys:
+          adminPasswordKey: postgres-password
+          userPasswordKey: password
+      # Persistence configuration (optional but recommended)
+      primary:
+        persistence:
+          enabled: true
+          size: 8Gi
 
-    production: true
-    proxyHeaders: "xforwarded"
-    httpRelativePath: "/"
-
-    # NETWORK & EXPOSURE
+    # Service Configuration (expose Keycloak)
     service:
-      type: ClusterIP
+      type: ClusterIp
       ports:
         http: 80
-        https: 443
-
-    ingress:
-      enabled: true
-      hostname: "login.example.com"
-      ingressClassName: "nginx"
-      annotations:
-        nginx.ingress.kubernetes.io/proxy-buffer-size: "16k"

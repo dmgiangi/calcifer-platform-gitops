@@ -3,5 +3,4 @@ kind: Kustomization
 resources:
   - namespace.yaml
   - credentials.yaml
-  - release-postgres.yaml
   - release-keycloak.yaml
