@@ -7,12 +7,10 @@ spec:
   size: 1
   image: hashicorp/vault:1.15.2
 
-  # Template for the Service created by the Operator
-  serviceTemplate:
-    metadata:
-      annotations:
-        konghq.com/protocol: "https"
-        konghq.com/tls-skip-verify: "true"
+  # Annotations for Vault resources (including Service)
+  vaultAnnotations:
+    konghq.com/protocol: "https"
+    konghq.com/tls-skip-verify: "true"
 
   # Service Account
   serviceAccount: vault
