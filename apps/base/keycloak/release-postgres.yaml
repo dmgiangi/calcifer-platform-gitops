@@ -32,9 +32,11 @@ spec:
         vault.hashicorp.com/role: "keycloak"
         # Inject the secret into /vault/secrets/credentials
         vault.hashicorp.com/agent-inject-secret-credentials: "secret/data/keycloak/database"
-                # Template: Only output the password value, no keys
-                vault.hashicorp.com/agent-inject-template-credentials: |
-                  {{ "{{" }}- with secret "secret/data/keycloak/database" -{{ "}}" }}
-                  {{ "{{" }} .Data.data.password {{ "}}" }}
-                  {{ "{{" }}- end -{{ "}}" }}
-        
+                        # Template: Only output the password value, no keys
+                        vault.hashicorp.com/agent-inject-template-credentials-left-delimiter: "[["
+                        vault.hashicorp.com/agent-inject-template-credentials-right-delimiter: "]]"
+                        vault.hashicorp.com/agent-inject-template-credentials: |
+                          [[- with secret "secret/data/keycloak/database" -]]
+                          [[ .Data.data.password ]]
+                          [[- end -]]
+                
