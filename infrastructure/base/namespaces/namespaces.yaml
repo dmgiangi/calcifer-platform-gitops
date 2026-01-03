@@ -16,3 +16,8 @@ metadata:
   labels:
     name: vault
     vault-injection: enabled
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: keycloak

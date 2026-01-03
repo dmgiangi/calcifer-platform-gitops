@@ -1,0 +1,10 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: keycloak-k8s-resources
+  namespace: flux-system
+spec:
+  interval: 1h
+  url: https://github.com/keycloak/keycloak-k8s-resources
+  ref:
+    branch: "24.6.7"

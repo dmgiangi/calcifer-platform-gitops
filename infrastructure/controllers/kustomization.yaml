@@ -11,3 +11,4 @@ resources:
   - ./tf-controller.yaml
   - ./vault-operator.yaml
   - ./vault-instance.yaml
+  - ./keycloak-operator.yaml
