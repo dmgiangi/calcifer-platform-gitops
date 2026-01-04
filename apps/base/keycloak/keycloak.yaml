@@ -24,10 +24,6 @@ spec:
   bootstrapAdmin:
     user:
       secret: keycloak-credentials
-      key: admin-username
-    password:
-      secret: keycloak-credentials
-      key: admin-password
 
   hostname:
     hostname: auth.dmgiangi.dev
