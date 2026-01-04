@@ -14,10 +14,10 @@ spec:
     port: 5432
     usernameSecret:
       name: keycloak-credentials
-      key: db-username
+      key: username
     passwordSecret:
       name: keycloak-credentials
-      key: db-password
+      key: password
 
   # Admin User (Bootstrap)
   # Essential for first access
