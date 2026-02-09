@@ -7,6 +7,5 @@ metadata:
 spec:
   ipAddressPools:
     - home-pool
-  interfaces:
-    - eno1  # Primary network interface on calcifer-home node
+  # Removed interfaces restriction to allow MetalLB to use all available interfaces
 
