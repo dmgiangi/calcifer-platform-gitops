@@ -23,9 +23,7 @@ spec:
     remediation:
       retries: 3
   values:
-    # Default values - MetalLB will be configured via IPAddressPool and L2Advertisement CRDs
     speaker:
       frr:
         enabled: false  # Use native speaker mode (L2 only)
-      logLevel: debug  # Enable debug logging to troubleshoot L2 announcements
 
