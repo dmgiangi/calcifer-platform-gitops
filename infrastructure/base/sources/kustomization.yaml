@@ -5,6 +5,3 @@ resources:
   - ./local-path-provisioner-repository.yaml
   - ./kong-repository.yaml
   - ./jetstack-repository.yaml
-  - ./tf-controller-repository.yaml
-  - keycloack-repository.yaml
-  - ./vault-repository.yaml
