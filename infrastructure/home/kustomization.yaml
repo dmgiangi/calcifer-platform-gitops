@@ -7,6 +7,8 @@ resources:
   - ../base/sources
   # Infrastructure components
   - ./local-path-provisioner.yaml
+  - ./metallb.yaml
+  - ./metallb-config.yaml
   - ./kong-gateway.yaml
   - ./cert-manager.yaml
   - ./cert-manager-issuers.yaml

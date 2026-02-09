@@ -1,0 +1,28 @@
+---
+# Patch for Kong Gateway on cloud cluster (bare-metal VPS)
+# Uses hostNetwork to bind directly to ports 80/443 on the host
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kong
+  namespace: kong
+spec:
+  values:
+    deployment:
+      daemonset: true  # Ensures Kong runs on every node
+      hostNetwork: true  # Binds directly to host network stack
+    dnsPolicy: ClusterFirstWithHostNet  # Required when hostNetwork=true to resolve K8s services
+    containerSecurityContext:
+      capabilities:
+        add: [NET_BIND_SERVICE]  # Allows binding to privileged ports (80/443)
+        drop: []
+      runAsGroup: 0
+      runAsNonRoot: false
+      runAsUser: 0  # Required for binding to privileged ports
+    proxy:
+      type: ClusterIP  # Service type is ClusterIP since hostNetwork handles external exposure
+      http:
+        containerPort: 80
+      tls:
+        containerPort: 443
+

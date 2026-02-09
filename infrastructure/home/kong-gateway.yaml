@@ -5,8 +5,10 @@ metadata:
   name: kong-gateway
   namespace: flux-system
 spec:
+  dependsOn:
+    - name: metallb-config  # Kong needs MetalLB to be ready for LoadBalancer
   interval: 5m
-  path: ./infrastructure/base/kong-gateway
+  path: ./infrastructure/home/kong-gateway-resources
   sourceRef:
     kind: GitRepository
     name: flux-system

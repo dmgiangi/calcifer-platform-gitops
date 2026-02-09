@@ -5,3 +5,4 @@ resources:
   - ./local-path-provisioner-repository.yaml
   - ./kong-repository.yaml
   - ./jetstack-repository.yaml
+  - ./metallb-repository.yaml

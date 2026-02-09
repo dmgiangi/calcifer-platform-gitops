@@ -1,0 +1,22 @@
+---
+# Patch for Kong Gateway on home cluster
+# Uses MetalLB LoadBalancer instead of hostNetwork for cleaner networking
+apiVersion: helm.toolkit.fluxcd.io/v2
+kind: HelmRelease
+metadata:
+  name: kong
+  namespace: kong
+spec:
+  values:
+    deployment:
+      daemonset: false  # Use Deployment instead of DaemonSet
+    proxy:
+      type: LoadBalancer  # MetalLB will assign an IP from the configured pool
+      http:
+        containerPort: 8000  # Standard non-privileged port
+      tls:
+        containerPort: 8443  # Standard non-privileged port
+      annotations:
+        # Optional: Request a specific IP from MetalLB pool
+        # metallb.universe.tf/loadBalancerIPs: "192.168.0.200"
+

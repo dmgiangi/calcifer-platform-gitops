@@ -1,18 +1,19 @@
+---
 apiVersion: helm.toolkit.fluxcd.io/v2
 kind: HelmRelease
 metadata:
-  name: kong
-  namespace: kong
+  name: metallb
+  namespace: metallb-system
 spec:
   interval: 5m
   chart:
     spec:
-      chart: kong
+      chart: metallb
       sourceRef:
         kind: HelmRepository
-        name: kong
+        name: metallb
         namespace: flux-system
-      version: "2.x"
+      version: "0.14.x"
   install:
     crds: Create
     remediation:
@@ -21,14 +22,9 @@ spec:
     crds: CreateReplace
     remediation:
       retries: 3
-  # Base values - cluster-specific configurations are applied via patches
   values:
-    proxy:
-      http:
-        enabled: true
-      tls:
-        enabled: true
-    admin:
-      type: ClusterIP
-    ingressController:
-      enabled: true
+    # Default values - MetalLB will be configured via IPAddressPool and L2Advertisement CRDs
+    speaker:
+      frr:
+        enabled: false  # Use native speaker mode (L2 only)
+

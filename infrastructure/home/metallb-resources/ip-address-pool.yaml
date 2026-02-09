@@ -1,0 +1,13 @@
+---
+apiVersion: metallb.io/v1beta1
+kind: IPAddressPool
+metadata:
+  name: home-pool
+  namespace: metallb-system
+spec:
+  # IP range for LoadBalancer services in the home network
+  # Adjust this range based on your home network configuration
+  # Make sure these IPs are not used by DHCP or other devices
+  addresses:
+    - 192.168.0.200-192.168.0.210
+
