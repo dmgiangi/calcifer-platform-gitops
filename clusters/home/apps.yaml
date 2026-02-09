@@ -5,12 +5,15 @@ metadata:
   name: apps
   namespace: flux-system
 spec:
-  interval: 5m
+  dependsOn:
+    - name: infra-controllers
+  interval: 1h
+  retryInterval: 2m
+  timeout: 5m
   path: ./apps/home
   sourceRef:
     kind: GitRepository
     name: flux-system
   prune: true
-  dependsOn:
-    - name: core-infra
+  wait: true
 
