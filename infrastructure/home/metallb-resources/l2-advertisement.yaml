@@ -7,4 +7,6 @@ metadata:
 spec:
   ipAddressPools:
     - home-pool
+  interfaces:
+    - eno1  # Primary network interface on calcifer-home node
 
