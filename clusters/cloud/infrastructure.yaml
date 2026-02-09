@@ -14,4 +14,8 @@ spec:
     name: flux-system
   prune: true
   wait: true
+  decryption:
+    provider: sops
+    secretRef:
+      name: sops-age
 

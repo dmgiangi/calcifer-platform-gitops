@@ -12,4 +12,6 @@ resources:
   - ./kong-gateway.yaml
   - ./cert-manager.yaml
   - ./cert-manager-issuers.yaml
+  # Secrets (encrypted with SOPS)
+  - ./secrets
 
